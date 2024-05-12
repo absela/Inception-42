@@ -1,0 +1,10 @@
+server
+{
+    listen 2002;
+
+    root /var/www/html;
+
+    location /.html$ {
+        index index.html;
+    }
+}

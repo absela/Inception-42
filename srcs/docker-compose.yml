@@ -1,0 +1,79 @@
+version: "3.7"
+
+services:
+  mariadb:
+    build: ./requirements/mariadb/
+    container_name: mariadb
+    env_file: .env
+    restart: always
+    expose:
+      - "3306"
+    networks:
+      - net
+    volumes:
+      - vol_mariadb:/var/lib/mysql
+  nginx:
+    build: ./requirements/ngnix/
+    container_name: nginx
+    env_file: .env
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    restart: on-failure
+    volumes:
+      - vol_wordpress:/var/www/html
+    networks:
+      - net
+  wordpress:
+    build:  ./requirements/wordpress/
+    container_name: wordpress
+    env_file: .env
+    depends_on:
+      - mariadb
+    expose:
+      - "9000"
+    restart: always
+    volumes:
+      - vol_wordpress:/var/www/html
+    networks:
+      - net
+  adminer:
+    container_name: adminer
+    build: ./requirements/bonus/adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mariadb
+    networks:
+      - net
+    restart: always
+  website:
+    container_name: website
+    build: ./requirements/bonus/website
+    ports:
+      - "2002:2002"
+    networks:
+      - net
+    restart: always
+
+
+networks:
+  net:
+  
+volumes:
+  vol_mariadb:
+    name: v_mariadb
+    driver: local
+    driver_opts:
+      device: /home/absela/data/vol_mariadb
+      type: none
+      o: bind
+ 
+  vol_wordpress:
+    name: v_wordpress
+    driver: local
+    driver_opts:
+      device: /home/absela/data/vol_wordpress
+      type: none
+      o: bind
